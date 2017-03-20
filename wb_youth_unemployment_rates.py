@@ -1,3 +1,4 @@
+import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sb
@@ -56,5 +57,18 @@ south_american_countries = df[df['Country Name'].isin(south_american_countries_l
 #create a new data frame for Oceanian countries
 oceanian_countries = df[df['Country Name'].isin(oceanian_countries_list)]
 
+#strip plot for oceanian countries which compares data 2010-2014 from light to dark color
+sb.set_context("notebook", font_scale=.9)
+sb.set_style("whitegrid")
+palette_2013= sb.color_palette("hls",5)
+palette_2014= sb.hls_palette(5,l=.3,s=.8)
+palette_2012 = sb.hls_palette(5,l=.5,s=.6)
+palette_2011 = sb.hls_palette(5,l=.7,s=.5)
+palette_2010 = sb.hls_palette(5,l=.8,s=.4)
 
+ax = sb.stripplot(x='Country Name', y='2010',hue='Country Name',data=oceanian_countries, palette=palette_2010,jitter=True)
+ax = sb.stripplot(x='Country Name', y='2011',data=oceanian_countries, palette=palette_2011)
+ax = sb.stripplot(x='Country Name', y='2012',data=oceanian_countries, palette=palette_2012)
+ax = sb.stripplot(x='Country Name', y='2013',data=oceanian_countries, palette=palette_2013)
+ax = sb.stripplot(x='Country Name', y='2014',data=oceanian_countries, palette=palette_2014)
 print(oceanian_countries)
