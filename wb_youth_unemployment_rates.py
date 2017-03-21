@@ -7,6 +7,10 @@ import seaborn as sb
 country_data = 'data/raw/API_ILO_country_YU.csv'
 df = pd.read_csv(country_data)
 
+"""
+CREATE LISTS FOR EACH CONTINENT TO FILTER FROM THE DATA SET
+"""
+
 #create a new list fo African Countries
 african_countries_list = ['Algeria','Angola','Benin','Botswana','Burkina','Burundi','Cameroon','Cape Verde','Central African Republic',
 'Chad','Comoros','Congo, Rep.','Cote d\'Ivoire','Djibouti','Egypt','Equatorial Guinea','Eritrea','Ethiopia','Gabon','Gambia','Ghana',
@@ -39,6 +43,10 @@ south_american_countries_list = ['Argentina','Bolivia','Brazil','Chile','Colombi
 oceanian_countries_list = ['Australia','Fiji','Guam','Kiribati','Marshall Islands','Micronesia','Nauru','New Zealand','Palau','Papua New Guinea',
 'Samoa','Solomon Islands','Tonga','Tuvalu','Vanuatu',]
 
+"""
+CREATE NEW DATA FRAME FOR EACH CONTINENT BASED FROM THE COUNTRY LIST
+"""
+
 #create a new data frame for African countries
 african_countries = df[df['Country Name'].isin(african_countries_list)]
 
@@ -57,7 +65,13 @@ south_american_countries = df[df['Country Name'].isin(south_american_countries_l
 #create a new data frame for Oceanian countries
 oceanian_countries = df[df['Country Name'].isin(oceanian_countries_list)]
 
-#strip plot for oceanian countries which compares data 2010-2014 from light to dark color
+
+"""
+PLOT A GRAPH FOR EACH CONTINENT WHICH COMPARES EACH COUNTRY'S DATA FROM 2010-2014
+2010 AS THE LIGHTEST COLOR AND 2014 AS THE DARKEST TO SHOW EACH COUNTRY'S PROGRESS
+OVER THE PAST 5 YEARS
+"""
+
 sb.set_context("notebook", font_scale=.9)
 sb.set_style("whitegrid")
 palette_2013= sb.color_palette("hls",5)
@@ -66,9 +80,14 @@ palette_2012 = sb.hls_palette(5,l=.5,s=.6)
 palette_2011 = sb.hls_palette(5,l=.7,s=.5)
 palette_2010 = sb.hls_palette(5,l=.8,s=.4)
 
-ax = sb.stripplot(x='Country Name', y='2010',hue='Country Name',data=oceanian_countries, palette=palette_2010,jitter=True)
-ax = sb.stripplot(x='Country Name', y='2011',data=oceanian_countries, palette=palette_2011)
-ax = sb.stripplot(x='Country Name', y='2012',data=oceanian_countries, palette=palette_2012)
-ax = sb.stripplot(x='Country Name', y='2013',data=oceanian_countries, palette=palette_2013)
-ax = sb.stripplot(x='Country Name', y='2014',data=oceanian_countries, palette=palette_2014)
-print(oceanian_countries)
+#function for plotting the graph using stripplot
+def plot_continent_graph(continent):
+    sb.stripplot(x='Country Name', y='2010',hue='Country Name',data=continent, palette=palette_2010,jitter=True)
+    sb.stripplot(x='Country Name', y='2011',data=continent, palette=palette_2011)
+    sb.stripplot(x='Country Name', y='2012',data=continent, palette=palette_2012)
+    sb.stripplot(x='Country Name', y='2013',data=continent, palette=palette_2013)
+    sb.stripplot(x='Country Name', y='2014',data=continent, palette=palette_2014)
+
+#plot_continent_graph(oceanian_countries)
+#plot_continent_graph(asian_countries)
+#print(oceanian_countries)
