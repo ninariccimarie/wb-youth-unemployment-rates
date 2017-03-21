@@ -1,9 +1,9 @@
 # World Bank Youth Unemployment Rates
-## Youth Unemployment rates by country from 2010-2014
+Youth Unemployment rates by country from 2010-2014
 
 ### Description
-###### This project is a practice for Data Analysis and Visualization and is still on going
-Python 2.7
+##### This project is a practice for Data Analysis and Visualization and is still on going
+Python 3.6
 Pandas
 Matplotlib
 Seaborn
@@ -17,3 +17,9 @@ Seaborn
 http://data.worldbank.org/indicator/SL.UEM.TOTL.ZS
 
 *Released under Open license.*
+
+###Project Goals
+- [x] Separate countries based on their continents
+- [x] Create graphs that show the progress of each country per year
+- [ ] Compare the continents' highest, lowest and average
+- [ ] Create a density plot on a world map
