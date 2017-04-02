@@ -18,7 +18,7 @@ http://data.worldbank.org/indicator/SL.UEM.TOTL.ZS
 
 *Released under Open license.*
 
-###Project Goals
+### Project Goals
 - [x] Separate countries based on their continents
 - [x] Create graphs that show the progress of each country per year
 - [ ] Compare the continents' highest, lowest and average
