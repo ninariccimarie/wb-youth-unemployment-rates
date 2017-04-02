@@ -43,28 +43,38 @@ south_american_countries_list = ['Argentina','Bolivia','Brazil','Chile','Colombi
 oceanian_countries_list = ['Australia','Fiji','Guam','Kiribati','Marshall Islands','Micronesia','Nauru','New Zealand','Palau','Papua New Guinea',
 'Samoa','Solomon Islands','Tonga','Tuvalu','Vanuatu',]
 
+
 """
 CREATE NEW DATA FRAME FOR EACH CONTINENT BASED FROM THE COUNTRY LIST
 """
 
 #create a new data frame for African countries
 african_countries = df[df['Country Name'].isin(african_countries_list)]
+#african_countries['Continent'] = 'Africa'
 
 #create a new data frame for Asian countries
 asian_countries = df[df['Country Name'].isin(asian_countries_list)]
+#asian_countries['Continent'] = 'Asia'
 
 #create a new data frame for European countries
 european_countries = df[df['Country Name'].isin(european_countries_list)]
+#european_countries['Continent'] = 'Europe'
 
 #create a new data frame for North American countries
 north_american_countries = df[df['Country Name'].isin(north_american_countries_list)]
+#north_american_countries['Continent'] = 'Europe'
 
 #create a new data frame for South American countries
 south_american_countries = df[df['Country Name'].isin(south_american_countries_list)]
+#south_american_countries['Continent'] = 'South America'
 
 #create a new data frame for Oceanian countries
 oceanian_countries = df[df['Country Name'].isin(oceanian_countries_list)]
+#oceanian_countries['Continent'] = 'Oceania'
 
+#create list of continents
+continents_list = [african_countries, asian_countries, european_countries, north_american_countries,
+              south_american_countries, oceanian_countries]
 
 """
 PLOT A GRAPH FOR EACH CONTINENT WHICH COMPARES EACH COUNTRY'S DATA FROM 2010-2014
@@ -88,6 +98,33 @@ def plot_continent_graph(continent):
     sb.stripplot(x='Country Name', y='2013',data=continent, palette=palette_2013)
     sb.stripplot(x='Country Name', y='2014',data=continent, palette=palette_2014)
 
+def select_highest_rate(continent, year):
+    highest_rate_idx = continent[year].idxmax()
+    return continent.loc[highest_rate_idx]
+
+def select_lowest_rate(continent, year):
+    lowest_rate_idx = continent[year].idxmin()
+    return continent.loc[lowest_rate_idx]
+
+def show_highest_countries(continents_list):
+    highest_countries = {}
+    for continent in continents_list:
+        temp = select_highest_rate(continent, '2010')
+        highest_countries[temp['Country Name']] = temp['2010']
+    df_highest_countries = pd.DataFrame(list(highest_countries.items()), columns=['Country', 'Rate'])
+    return df_highest_countries
+
+def show_lowest_countries(continents_list):
+    lowest_countries = {}
+    for continent in continents_list:
+        temp = select_lowest_rate(continent, '2010')
+        lowest_countries[temp['Country Name']] = temp['2010']
+    df_lowest_countries = pd.DataFrame(list(lowest_countries.items()), columns=['Country Name','Rate'])
+    return df_lowest_countries        
+
+print(show_highest_countries(continents_list))
+print(show_lowest_countries(continents_list))
+#print(select_highest_rate(oceanian_countries, '2014'))
+#print(select_lowest_rate(oceanian_countries, '2010'))
 #plot_continent_graph(oceanian_countries)
 #plot_continent_graph(asian_countries)
-#print(oceanian_countries)
