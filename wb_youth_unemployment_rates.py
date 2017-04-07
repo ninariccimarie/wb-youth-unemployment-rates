@@ -52,27 +52,27 @@ oceanian_countries_list = ['Australia','Fiji','Guam','Kiribati','Marshall Island
 CREATE NEW DATA FRAME FOR EACH CONTINENT BASED FROM THE COUNTRY LIST
 """
 
-#create a new data frame for African countries
+#create a new data frame for African countries and add a new column for Continent
 african_countries = new_df[new_df['Country Name'].isin(african_countries_list)]
 african_countries.insert(0, 'Continent', 'Africa')
 
-#create a new data frame for Asian countries
+#create a new data frame for Asian countries and add a new column for Continent
 asian_countries = df[df['Country Name'].isin(asian_countries_list)]
 asian_countries.insert(0, 'Continent', 'Asia')
 
-#create a new data frame for European countries
+#create a new data frame for European countries and add a new column for Continent
 european_countries = df[df['Country Name'].isin(european_countries_list)]
 european_countries.insert(0, 'Continent', 'Europe')
 
-#create a new data frame for North American countries
+#create a new data frame for North American countries and add a new column for Continent
 north_american_countries = df[df['Country Name'].isin(north_american_countries_list)]
 north_american_countries.insert(0, 'Continent', 'North America')
 
-#create a new data frame for South American countries
+#create a new data frame for South American countries and add a new column for Continent
 south_american_countries = df[df['Country Name'].isin(south_american_countries_list)]
 south_american_countries.insert(0, 'Continent', 'South America')
 
-#create a new data frame for Oceanian countries
+#create a new data frame for Oceanian countries and add a new column for Continent
 oceanian_countries = df[df['Country Name'].isin(oceanian_countries_list)]
 oceanian_countries.insert(0, 'Continent', 'Oceania')
 
@@ -110,13 +110,32 @@ def select_lowest_rate(continent, year):
     lowest_rate_idx = continent[year].idxmin()
     return continent.loc[lowest_rate_idx]
 
-def show_highest_countries(continents_list):
+def select_highest_countries(continents_list):
+    df_highest_countries = pd.concat(continents_list)
+    #melt for Year values in column
+    df_highest_countries = pd.melt(df_highest_countries, id_vars=['Continent', 'Country Name', 'Country Code'], var_name='Year')
+    #aggregate highest value and merge back to original set
+    df_highest_countries = df_highest_countries.groupby(['Year', 'Continent'])['value'].max().reset_index().\
+        merge(df_highest_countries, on=['Year', 'Continent', 'value'])
+    return df_highest_countries
+        
+"""def show_highest_countries(continents_list):
+    df_highest_countries = {}
+    years_list = ['2010','2011','2012','2013','2014']
+    for continent in continents_list:
+        for year in years_list:
+            highest_country = select_highest_rate(continent, year)
+            highest_countries = highest_country[['Continent','Country Name',year]]
+            df_highest_countries[year] = pd.DataFrame(highest_countries)
+    return df_highest_countries"""
+
+"""def show_highest_countries(continents_list):
     highest_countries = {}
     for continent in continents_list:
         highest_country = select_highest_rate(continent, '2010')
         highest_countries[highest_country['Country Name']] = highest_country['2010']
     df_highest_countries = pd.DataFrame(list(highest_countries.items()), columns=['Country', 'Rate'])
-    return df_highest_countries
+    return df_highest_countries"""
 
 def show_lowest_countries(continents_list):
     lowest_countries = {}
@@ -126,8 +145,8 @@ def show_lowest_countries(continents_list):
     df_lowest_countries = pd.DataFrame(list(lowest_countries.items()), columns=['Country Name','Rate'])
     return df_lowest_countries        
 
-print(oceanian_countries)
-#print(show_highest_countries(continents_list))
+#print(oceanian_countries)
+print(select_highest_countries(continents_list))
 #print(show_lowest_countries(continents_list))
 #print(select_highest_rate(african_countries, '2014'))
 #print(select_lowest_rate(oceanian_countries, '2010'))
