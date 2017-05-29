@@ -1,7 +1,7 @@
-import numpy as np
 import pandas as pd
+import seaborn as sns
+import plotly
 import matplotlib.pyplot as plt
-import seaborn as sb
 
 #read csv data
 country_data = 'data/raw/API_ILO_country_YU.csv'
@@ -9,7 +9,6 @@ df = pd.read_csv(country_data)
 
 #create new data frame from the raw data
 new_df = df.copy()
-
 
 """
 CREATE LISTS FOR EACH CONTINENT TO FILTER FROM THE DATA SET
@@ -86,21 +85,23 @@ PLOT A GRAPH FOR EACH CONTINENT WHICH COMPARES EACH COUNTRY'S DATA FROM 2010-201
 OVER THE PAST 5 YEARS
 """
 
-sb.set_context("notebook", font_scale=.9)
-sb.set_style("whitegrid")
-palette_2013= sb.color_palette("hls",5)
-palette_2014= sb.hls_palette(5,l=.3,s=.8)
-palette_2012 = sb.hls_palette(5,l=.5,s=.6)
-palette_2011 = sb.hls_palette(5,l=.7,s=.5)
-palette_2010 = sb.hls_palette(5,l=.8,s=.4)
+sns.set_context("notebook", font_scale=.9)
+sns.set_style("whitegrid")
+palette_2013= sns.color_palette("hls",5)
+palette_2014= sns.hls_palette(5,l=.3,s=.8)
+palette_2012 = sns.hls_palette(5,l=.5,s=.6)
+palette_2011 = sns.hls_palette(5,l=.7,s=.5)
+palette_2010 = sns.hls_palette(5,l=.8,s=.4)
 
 #function for plotting the graph using stripplot
 def plot_continent_graph(continent):
-    sb.stripplot(x='Country Name', y='2010',hue='Country Name',data=continent, palette=palette_2010,jitter=True)
-    sb.stripplot(x='Country Name', y='2011',data=continent, palette=palette_2011)
-    sb.stripplot(x='Country Name', y='2012',data=continent, palette=palette_2012)
-    sb.stripplot(x='Country Name', y='2013',data=continent, palette=palette_2013)
-    sb.stripplot(x='Country Name', y='2014',data=continent, palette=palette_2014)
+    ax = sns.stripplot(x='Country Name', y='2010',hue='Country Name',data=continent, palette=palette_2010,jitter=True)
+    ax = sns.stripplot(x='Country Name', y='2011',data=continent, palette=palette_2011)
+    ax = sns.stripplot(x='Country Name', y='2012',data=continent, palette=palette_2012)
+    ax = sns.stripplot(x='Country Name', y='2013',data=continent, palette=palette_2013)
+    ax = sns.stripplot(x='Country Name', y='2014',data=continent, palette=palette_2014)
+    ax.legend().set_visible(False)
+    return ax
 
 def select_highest_rate(continent, year):
     highest_rate_idx = continent[year].idxmax()
@@ -117,7 +118,11 @@ def select_highest_countries(continents_list):
     #aggregate highest value and merge back to original set
     df_highest_countries = df_highest_countries.groupby(['Year', 'Continent'])['value'].max().reset_index().\
         merge(df_highest_countries, on=['Year', 'Continent', 'value'])
+    df_highest_countries = sns.barplot(x='Year', y='value', hue='Continent', data=df_highest_countries)
     return df_highest_countries
+
+#select_highest_countries(continents_list)
+#plt.xticks(rotation=90)
 
 def select_lowest_countries(continents_list):
     df_lowest_countries = pd.concat(continents_list)
@@ -126,20 +131,80 @@ def select_lowest_countries(continents_list):
     #aggregate highest value and merge back to original set
     df_lowest_countries = df_lowest_countries.groupby(['Year', 'Continent'])['value'].min().reset_index().\
         merge(df_lowest_countries, on=['Year', 'Continent', 'value'])
+    df_lowest_countries = sns.barplot(x='Year', y='value', hue='Continent', data=df_lowest_countries)
+    df_lowest_countries.set_title('Lowest Unemployment Rates for each Continent 2010-2014')
     return df_lowest_countries
 
-def show_lowest_countries(continents_list):
-    lowest_countries = {}
-    for continent in continents_list:
-        lowest_country = select_lowest_rate(continent, '2010')
-        lowest_countries[lowest_country['Country Name']] = lowest_country['2010']
-    df_lowest_countries = pd.DataFrame(list(lowest_countries.items()), columns=['Country Name','Rate'])
-    return df_lowest_countries        
+select_lowest_countries(continents_list)
 
+"""def show_mean_continent(continents_list):
+    df_mean_continent = pd.DataFrame()
+    for continent in continents_list:
+        print(continent['Continent'].iloc[0], 'gfdgdg', continent[['2010','2011','2012','2013','2014']].mean())
+        df_mean_continent.append(continent[['2010','2011','2012','2013','2014']].mean(), ignore_index=True)
+    return df_mean_continent """
+
+def show_mean_continent(continents_list):
+    df_mean_continent = pd.concat(continents_list)
+    df_mean_continent = df_mean_continent.groupby('Continent')[['2010','2011','2012','2013','2014']].mean()
+    df_mean_continent = df_mean_continent.plot.bar()
+    return df_mean_continent
+
+def plot_map(continents_list):
+    df_countries = pd.concat(continents_list)
+    data = [dict(
+            type = 'choropleth',
+            locations = df_countries['Country Code'],
+            z = df_countries['2014'],
+            text = df_countries['Country Name'],
+            colorscale = [[0,"rgb(5, 10, 172)"],[0.35,"rgb(40, 60, 190)"],[0.5,"rgb(70, 100, 245)"],\
+            [0.6,"rgb(90, 120, 245)"],[0.7,"rgb(106, 137, 247)"],[1,"rgb(220, 220, 220)"]],
+            autocolorscale = False,
+            reversescale = True,
+            marker = dict(
+                line = dict (
+                    color = 'rgb(180,180,180)',
+                    width = 0.5
+                ) ),
+            colorbar = dict(
+                autotick = False,
+                tickprefix = '$',
+                title = 'Youth Unemployment<br>Rates'),
+            )]
+    layout = dict(
+        title = '2014 World Bank Youth Unemployment Rate <br> Source:\
+                <a href="https://www.kaggle.com/sovannt/world-bank-youth-unemployment</a>',
+        geo = dict(
+            showframe = False,
+            showcoastlines = False,
+            projection = dict(
+                type = 'Mercator'
+            )
+        )
+    )
+            
+    fig = dict( data=data, layout=layout )
+    plotly.offline.plot( fig, validate=False, filename='d3-world-map' )
+    
+"""
+Linear Regression
+x_axis = cause, independent variable (the thing you are changing), explanatory
+y_axis = effect, dependent variable (the thing you are measuring), response
+"""
+def plot_compare_var(x, y, data):
+    ax = sns.regplot(x=x, y=y, data=data)
+    plt.show(ax)
+    
+#plot_compare_var('2010','2014', oceanian_countries)
+
+#plot_map(continents_list)
+#print(oceanian_countries[['2010','2011','2012','2013']].mean())
+#print(show_mean_continent(continents_list))
 #print(oceanian_countries)
-print(select_lowest_countries(continents_list))
+#print(select_lowest_countries(continents_list))
 #print(show_lowest_countries(continents_list))
 #print(select_highest_rate(african_countries, '2014'))
 #print(select_lowest_rate(oceanian_countries, '2010'))
-#plot_continent_graph(oceanian_countries)
+#plot_continent_graph(asian_countries)
+#plt.xticks(rotation=90)
 #plot_continent_graph(asian_countries)
